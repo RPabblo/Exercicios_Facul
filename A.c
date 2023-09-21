@@ -93,33 +93,24 @@ void imprimir(Lista *lista)
 }
 
 
-void uniao(Lista **res, Lista *c1, Lista *c2)
+Lista * uniao(Lista *c1, Lista *c2)
 {
-    Lista *temp1 = c1; Lista *temp2 = c2;
-
-    for(;;)
-    {
-        if(temp1 != NULL && temp2 == NULL) {
-            return;
-        }
+    Lista *res = NULL;
+    Lista **proximo = &res;
     
-        if(temp1->valor < temp2->valor) {
-            inserir_ordenado(res, temp1->valor);
+    while(c1 != NULL && c2 != NULL) {
+        if(c1->valor < c2->valor) {
+            *proximo = c1;
+            c1 = c1->proximo;
         }
-        else if(temp2->valor < temp1->valor) {
-            inserir_ordenado(res, temp2->valor);
+        else {
+            *proximo = c2;
+            c2 = c2->proximo;
         }
+        proximo = &((*proximo)->proximo);
     }
-    
-    while(temp1 != NULL) {
-        inserir_ordenado(res, temp1->valor);
-        temp1= temp1->proximo;
-    }
-    
-    while(temp2 != NULL) {
-        inserir_ordenado(res, temp2->valor);
-        temp2 = temp2->proximo;
-    }
+    *proximo = c1 ? c1 : c2;
+    return res;
 }
 
 // 1 -> 3 -> 5
@@ -150,7 +141,7 @@ int main(void)
     printf("\n");
     imprimir(c2);
 
-    uniao(&resultado, c1, c2);
+    resultado = uniao(c1, c2);
     printf("dihfidhfuihfiuhdsfudshf");
     printf("Resultado\n");
     imprimir(resultado);
