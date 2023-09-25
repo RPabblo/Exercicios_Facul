@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 
 typedef struct lista {
@@ -14,21 +13,50 @@ Lista* criar_no(int valor)
     Lista *novo_no = malloc(sizeof(Lista));
     novo_no->valor = valor;
     novo_no->proximo = NULL;
+
     return novo_no;
 }
 
-
-void inserir(Lista **head, int value)
+void imprimir(Lista *lista)
 {
-    Lista *novo = criar_no(value);
+    Lista *temp = lista;
 
-    while((*head)->proximo != NULL) {
-        *head = (*head)->proximo;
+    while(temp != NULL) {
+        printf("%d, ", temp->valor);
+        temp = temp->proximo;
     }
-    (*head)->proximo = novo;
-    novo->proximo = NULL;
+    printf("\n");
 }
 
+
+void remover(Lista **lista, int valor)
+{
+    Lista *temp;
+    
+    if(lista == NULL) return;
+    
+    if((*lista)->valor == valor) {
+        temp = (*lista)->proximo;
+        free(*lista);
+        return;
+    }
+    
+    Lista *ant = *lista;
+    temp = ant->proximo;
+    
+    while(temp->valor != valor && temp != NULL) {
+        temp = temp->proximo;
+        ant = ant->proximo;
+    }
+    
+    if(temp->valor == valor) {
+        ant->proximo = temp->proximo;
+        free(temp);
+        return;
+    }
+}
+
+//--------------------------------------------------
 
 void inserir_ordenado(Lista **lista, int value)
 {
@@ -51,53 +79,12 @@ void inserir_ordenado(Lista **lista, int value)
     ant->proximo = novo_no;
 }
 
-void append(Lista** head_ref, int new_data)
-{
-    /* 1. allocate node */
-    Lista* new_node = (Lista*)malloc(sizeof(Lista));
- 
-    Lista* last = *head_ref; /* used in step 5*/
- 
-    /* 2. put in the data */
-    new_node->valor = new_data;
- 
-    /* 3. This new node is going to be the last node, so
-    make next of it as NULL*/
-    new_node->proximo = NULL;
- 
-    /* 4. If the Linked List is empty, then make the new
-    * node as head */
-    if (*head_ref == NULL) {
-        *head_ref = new_node;
-        return;
-    }
- 
-    /* 5. Else traverse till the last node */
-    while (last->proximo != NULL)
-        last = last->proximo;
- 
-    /* 6. Change the next of last node */
-    last->proximo = new_node;
-    return;
-}
-
-void imprimir(Lista *lista)
-{
-    Lista *temp = lista;
-
-    while(temp != NULL) {
-        printf("%d ", temp->valor);
-        temp = temp->proximo;
-    }
-    printf("\n");
-}
-
 
 Lista * uniao(Lista *c1, Lista *c2)
 {
     Lista *res = NULL;
     Lista **proximo = &res;
-    
+
     while(c1 != NULL && c2 != NULL) {
         if(c1->valor < c2->valor) {
             *proximo = c1;
@@ -113,38 +100,94 @@ Lista * uniao(Lista *c1, Lista *c2)
     return res;
 }
 
-// 1 -> 3 -> 5
-// 2 -> 5 -> 6 -> 0
+Lista * interseccao(Lista *c1, Lista *c2)
+{
+    Lista *res = NULL;
+
+    while(c1 != NULL && c2 != NULL) {
+        if(c1->valor == c2->valor) {
+            inserir_ordenado(&res, c1->valor);
+            c1 = c1->proximo;
+            c2 = c2->proximo;
+        }
+        else if(c1->valor < c2->valor) {
+                c1 = c1->proximo;
+        }
+        else {
+            c2 = c2->proximo;
+        }
+    }
+    return res;
+}
 
 
+Lista * diferenca(Lista *c1, Lista *c2)
+{
+    Lista *res = NULL;
+    Lista *temp = c2;
+
+    if(c2 == NULL) return c1;
+    
+    while(c2 != NULL) {
+        remover(&c1, c2->valor);
+        
+        temp = temp->proximo;
+    }
+}
 
 int main(void)
 {
     Lista *c1 = NULL; Lista *c2 = NULL; Lista *resultado = NULL;
-    int n1 = 5, n2 = 5, valor;
+    int n1 = 5 , n2 = 5, valor, escolha = 0;
     int array1[5] = {6, 7, 1 ,23, 10};
     int array2[5] = {1, 3, 5, 7, 9};
-  
+    
+    /*
+    printf("Quantos elementos do conjunto 1? ");
+    scanf("%d", &n1);
+    printf("Quantos elementos do conjunto 2? ");
+    scanf("%d", &n2);
+    */
+
     for(int i = 0; i < n1; i++) {
-        //printf("\nDigite o %do elemento do conjuto 1: ", i + 1);
+        //printf("Digite o %do elemento do conjuto 1: ", i + 1);
         //scanf("%d", &valor);
         inserir_ordenado(&c1, array1[i]);
     }
-
+    printf("\n");
     for(int i = 0; i < n2; i++) {
-        //printf("Digite o %do elemento do conjuto 1: ", i + 1);
+        //printf("Digite o %do elemento do conjuto 2: ", i + 1);
         //scanf("%d", &valor);
         inserir_ordenado(&c2, array2[i]);
     }
     
+    printf("\n--------------------------\nVoce inseriu os dois conjuntos abaixo:\n");
     imprimir(c1);
-    printf("\n");
     imprimir(c2);
 
-    resultado = uniao(c1, c2);
-    printf("dihfidhfuihfiuhdsfudshf");
-    printf("Resultado\n");
-    imprimir(resultado);
+    printf("Qual operacao deseja fazer?\n[1] Uniao\n[2] Interseccao \n[3] Diferenca\n[4] Sair\n");
+    scanf("%d", &escolha);
 
+    while(escolha != 4) {
+        switch (escolha) {
+            case 1 :
+                if(resultado != NULL) break;
+                resultado = uniao(c1, c2);
+                break;
+            case 2:
+                resultado = interseccao(c1, c2);
+                break;
+            case 3:
+                diferenca(c1, c2);
+                break;
+                
+            default:
+                return 0;
+        }
+        printf("\n----------------------------\n");
+        imprimir(c1);
+        printf("----------------------------\n\nQual operacao deseja fazer?\n[1] Uniao\n[2] Interseccao \n[3] Diferenca\n[4] Sair\n");
+        scanf("%d", &escolha);
+    }
     return 0;
 }
