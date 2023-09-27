@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
-
+import pandas as pd
 import xlsxwriter
 from time import sleep
 from colorama import Fore, Style
@@ -34,8 +34,9 @@ class Bot_Whatsapp:
 
     def acessar_site(self):
 
-        contatos = [88912345678, 88912345678]
-        mensagens = ["Mensagem 1", "Mensagem 2"]
+        df = pd.read_excel("mensagens.xlsx", sheet_name="Planilha1")
+        contatos = df["Numero"].to_list()
+        mensagens = df["Mensagem"].to_list()
 
         self.driver.get('https://web.whatsapp.com/')
         WebDriverWait(self.driver, 40).until(
@@ -44,7 +45,7 @@ class Bot_Whatsapp:
         sleep(2)
         botao_iniciar_conversa = self.driver.find_element(By.XPATH, '//*[@id="app"]/div/div/div[4]/header/div[2]/div/span/div[3]/div')
 
-        for i in range(2):
+        for i in range(len(mensagens)):
 
             botao_iniciar_conversa.click()
         
